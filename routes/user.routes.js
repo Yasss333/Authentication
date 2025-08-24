@@ -1,9 +1,11 @@
 import express from "express";
-import { registeruser } from "../Controllers/user.controllers.js";
+import { login, registeruser, verifyUser } from "../Controllers/user.controllers.js";
 
 const router = express.Router();
 
-router.get("/register", registeruser);
+router.post("/register", registeruser);
+router.get("/verify/:token",verifyUser);
+router.post("/login",login);
 router.get("/", (req, res) => {
   res.send("User route works");
 });

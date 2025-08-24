@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import db from "./utils/db.js";
-
+import cookieParser from "cookie-parser";
 // Import routes
 import userRoutes from "./routes/user.routes.js";
 
@@ -26,7 +26,7 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
 // Test routes
 app.get("/", (req, res) => res.send("Hello World!"));
 app.get("/yash", (req, res) => res.send("Yash"));
@@ -37,6 +37,6 @@ db();
 // User routes
 app.use("/api/v1/users", userRoutes);
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`Example app listening on port ${port}`);
+// });
