@@ -3,7 +3,7 @@ import { registeruser } from "../Controllers/user.controllers.js";
 
 const router = express.Router();
 
-router.get("/register", registeruser);
+router.post("/register", registeruser);
 router.get("/", (req, res) => {
   res.send("User route works");
 });

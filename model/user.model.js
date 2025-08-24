@@ -1,4 +1,4 @@
-import { type } from "express/lib/response";
+// import { type } from "express/lib/response";
 import mongoose from "mongoose";
 
 const userSchema=new mongoose.Schema({
@@ -29,6 +29,6 @@ const userSchema=new mongoose.Schema({
     timestamps:true,
 });
 
-const user = mongoose.model("User",userSchema)
+const User = mongoose.model("User",userSchema)
 
-export default user;
+export default User;
