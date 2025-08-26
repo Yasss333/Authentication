@@ -8,12 +8,12 @@ import userRoutes from "./routes/user.routes.js";
 
 dotenv.config();
 
+// 🔎 Debugging: check if your secret is loading correctly
+console.log("ENV JWT_SECRET:", JSON.stringify(process.env.JWT_SECRET));
+
 const app = express();
 const port = process.env.PORT || 4000;
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
-});
 
 app.use(
   cors({
@@ -31,6 +31,7 @@ app.use(cookieParser());
 app.get("/", (req, res) => res.send("Hello World!"));
 app.get("/yash", (req, res) => res.send("Yash"));
 
+
 // Connect to DB
 db();
 
@@ -38,5 +39,9 @@ db();
 app.use("/api/v1/users", userRoutes);
 
 // app.listen(port, () => {
-//   console.log(`Example app listening on port ${port}`);
-// });
+  //   console.log(`Example app listening on port ${port}`);
+  // });
+  
+  app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
+  });

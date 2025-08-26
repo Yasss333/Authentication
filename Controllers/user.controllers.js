@@ -3,7 +3,8 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { readdirSync } from "fs";
+import { log } from "console";
+
 const registeruser = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -18,14 +19,13 @@ const registeruser = async (req, res) => {
     }
 
     // create user
-    const user = await User.create({ name, email, password, });
-console.log("User created successfully");   
+    const user = await User.create({ name, email, password });
+    console.log("User created successfully");
     console.log(user);
-     
 
     // generate verification token
     const token = crypto.randomBytes(32).toString("hex");
-    user.verficationToken = token;
+    user.verificationToken = token;
     await user.save();
 
     // send verification email
@@ -60,37 +60,26 @@ console.log("User created successfully");
   }
 };
 
-const verifyUser=async (req, res)=>{
- //get token
- //validate 
- // find user bases on token 
- //if not 
- //set is verified field to true 
- //remove verifaction token 
- //save 
- //return response 
- const{token}=req.params;
+const verifyUser = async (req, res) => {
+  const { token } = req.params;
 
-  console.log(token);
   if (!token) {
-    return res.status(400).json({
-      message:"Invalid Token "
-    })
+    return res.status(400).json({ message: "Invalid Token" });
   }
-     const user= await  User.findOne( {verficationToken:token})
-if (!user) {
-  return res.status(400).json({
-    message:"Invalid User ",
-  })
-}
 
-user.isverified=true ;
-user.verficationToken=undefined;
- await user.save()
-  
+  const user = await User.findOne({ verificationToken: token });
+  if (!user) {
+    return res.status(400).json({ message: "Invalid User" });
+  }
 
+  user.isverified = true;
+  user.verificationToken = undefined;
+  await user.save();
 
-}
+  return res.status(200).json({
+    message: "Email verified successfully! You can now login.",
+  });
+};
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -110,15 +99,19 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    if (!user.isVerified) {
+    if (!user.isverified) {
       return res
         .status(400)
         .json({ message: "Please verify your email before login" });
     }
 
-    const token = jwt.sign({ id: user._id, role: user.role }, "shhhh", {
-      expiresIn: "24h",
-    });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "24h",
+      }
+    );
 
     const cookieOptions = {
       httpOnly: true,
@@ -142,4 +135,58 @@ const login = async (req, res) => {
   }
 };
 
-export { registeruser, verifyUser, login };
+const getMe = async (req, res) => {
+  try {
+      // const user=await User.findById(req.user.id).select('-password')
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+const logoutUser = async (req, res) => {
+  try {
+    res.cookie('token',' ',{
+      expires:new Date(0)
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {}
+};
+const forgotPassword = async (req, res) => {
+  try {
+    //email
+    //  find user based on emial 
+    //rest token +rest expiry=>date.now()+10*60*1000=>user.save(
+    //send emai=>design url   
+  } catch (error) {}
+};
+const resetPassword = async (req, res) => {
+  try {
+    const{token}=req.params
+    const{password}=req.body
+    try {
+        const user=await  User.findOne({
+          resetpasswordToken :token,
+          resetpasswordexpiry:{$gt:Date.now()}
+          //set password 
+          //reset tokem ,reset expirt meaning clear them =>reset 
+          //save 
+        })    
+    } catch (error) {
+      
+    }   
+  } catch (error) {}
+};
+export { registeruser, verifyUser, login, getMe, logoutUser, forgotPassword };
