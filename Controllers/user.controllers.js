@@ -170,7 +170,34 @@ const forgotPassword = async (req, res) => {
     //  find user based on emial 
     //rest token +rest expiry=>date.now()+10*60*1000=>user.save(
     //send emai=>design url   
-  } catch (error) {}
+    const {email}=req.body;
+    const user=await User.findOne({email})
+    if (!user) {
+      return res.status(400).json({
+        message:"User not found "
+      })
+    }
+    const resetToken =crypto.randomBytes(32).toString("hex")
+
+   const hashedToken= crypto.createHash("sha256").update(resetToken).digest("hex")
+   
+    user.resetpasswordToken=hashedToken;
+    user.resetpasswordexpiry=Date.now()+10*60*1000;
+    await user.save()
+
+    const resetUrl=`{process.env.BASE_URL}/api/v1/users/reset-password/${resetToken}`
+
+    console.log("Reset Url "+ resetUrl);
+
+    res.status(200).json({
+      message:"Reset email send to you mail "
+    })
+    
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 const resetPassword = async (req, res) => {
   try {

@@ -20,5 +20,7 @@ router.get("/logout", isLoggedIn, logoutUser);
 router.get("/", (req, res) => {
   res.send("User route works");
 });
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
 export default router;
